@@ -5,6 +5,6 @@ AI tool to explore semantics
 ## Setup
 
 ```
-conda activate zinet
+conda activate zinets
 cd ~/projects/digital-duck/semantics-explorer
 ```
