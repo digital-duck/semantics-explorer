@@ -4,28 +4,34 @@ This repository contains the complete implementation of the Semantics Explorer a
 
 ## Overview
 
-A Streamlit-based interactive application for exploring the geometric structure of Chinese character embeddings across multiple embedding models and dimensionality reduction techniques.
+A Streamlit-based interactive application for exploring the geometric structure of multi-lingaul word embeddings across multiple embedding models and dimensionality reduction techniques.
 
 ## Quick Start
 
 ```bash
-# Initialize the project
-./init_project.sh
+# create virtual env
+conda create -n zinets
+conda activate zinets
 
-# Run the application
-cd src && streamlit run Welcome.py
+# clone source code
+git clone git@github.com:digital-duck/semantics-explorer.git
+cd semantics-explorer/src 
+
+# setup
+pip install -r requirements.txt
+
+# run app
+streamlit run Welcome.py
 ```
 
-## Paper Reference
+## Features
 
-This codebase implements the analysis described in:
-**"Geometric Structures and Patterns of Meaning in Chinese Character Embeddings: A PHATE Manifold Analysis"**
-
-The application enables interactive exploration of:
-- 6 embedding models (BGE-Base-ZH-v1.5, mBERT, XLM-R, DistilBERT, Jina-v2, Snowflake-Arctic)
-- 8 dimensionality reduction methods (t-SNE, UMAP, MDS, PCA, Isomap, Spectral Embedding, LLE, PHATE)
-- Structural vs. meaningful Chinese character filtering
-- Cross-model and cross-method validation of geometric patterns
+- **Interactive Visualization**: Real-time 2D/3D embedding exploration
+- **Multiple Models**: Support for both local (Ollama) and cloud-based embedding models
+- **Advanced Dimensionality Reduction**: PHATE, t-SNE, UMAP, and more
+- **Multilingual Support**: Optimized for Chinese-English language pairs
+- **Clustering Analysis**: Automated pattern detection in semantic space
+- **Session Caching**: Improved performance for repeated operations
 
 ## Repository Structure
 
@@ -40,19 +46,9 @@ semantics-explorer/
 │   ├── services/          # External service integrations
 │   ├── utils/             # Utility functions
 │   └── data/              # Dataset collection
-├── paper-datasets/        # Datasets referenced in the paper
-├── requirements.txt       # Python dependencies
-└── init_project.sh       # Project initialization script
+└── requirements.txt       # Python dependencies
 ```
 
-## Features
-
-- **Interactive Visualization**: Real-time 2D/3D embedding exploration
-- **Multiple Models**: Support for both local (Ollama) and cloud-based embedding models
-- **Advanced Dimensionality Reduction**: PHATE, t-SNE, UMAP, and more
-- **Multilingual Support**: Optimized for Chinese-English language pairs
-- **Clustering Analysis**: Automated pattern detection in semantic space
-- **Session Caching**: Improved performance for repeated operations
 
 ## Dependencies
 
@@ -67,12 +63,12 @@ See `requirements.txt` for complete dependencies. Key packages:
 
 The application includes curated datasets of Chinese characters and text samples used in the paper analysis. See `src/data/README-DATASET.md` for detailed descriptions.
 
-## Setup
+## Paper Citation
 
-```bash
-conda activate zinets
-cd ~/projects/digital-duck/semantics-explorer
-```
+**"Geometric Structures and Patterns of Meaning in Chinese Character Embeddings: A PHATE Manifold Analysis"**
+
+https://arxiv.org/abs/xxxx.yyyy
+
 
 ## License
 
