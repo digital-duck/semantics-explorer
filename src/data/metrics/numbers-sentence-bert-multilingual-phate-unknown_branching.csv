@@ -1,0 +1,5 @@
+clustering_coefficient,digit_indices,digit_sequence_linearity,found_letters,graph_density,hub_nodes,input_name,largest_component_size,max_degree,mean_degree,mean_step_distance,method_name,metric_type,model_name,num_components,num_edges,num_hubs,num_letters,overall_linearity,sequential_consistency,timestamp,transitivity
+1.0,,,,,,numbers,50,,,,PHATE,connectivity_graph,Sentence-BERT Multilingual,1,1225,,,,,20250923_075739,
+,,0,,,,numbers,,,,,PHATE,linearity_analysis,Sentence-BERT Multilingual,,,,,0.9531,,20250923_075739,
+,,,,1.0,,numbers,,49,49.0,,PHATE,topology_analysis,Sentence-BERT Multilingual,,,0,,,,20250923_075739,1.0
+,,,一;七;三;九;二;五;八;六;十;四;零,,,numbers,,,,0.0941,PHATE,alphabetical_ordering,Sentence-BERT Multilingual,,,,11,,0.4958,20250923_075739,

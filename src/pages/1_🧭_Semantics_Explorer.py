@@ -326,6 +326,7 @@ def main():
     
     # Add geometric analysis controls to sidebar
     with st.sidebar:
+
         with st.expander("🔬 Geometric Analysis", expanded=False):
             enable_geometric_analysis = st.checkbox(
                 "Enable Geometric Analysis", 

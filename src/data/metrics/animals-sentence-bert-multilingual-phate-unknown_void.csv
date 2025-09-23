@@ -1,0 +1,4 @@
+chi_statistic,expected_voids,input_name,is_significant,max_void_distance,mean_void_distance,method_name,metric_type,model_name,num_voids,observed_voids,p_value,significance_level,timestamp,total_void_area_estimate,void_distance_std
+,,animals,,,0.09338061070019223,PHATE,void_regions,Sentence-BERT Multilingual,17,,,,20250923_075717,,
+0.0,20.0,animals,False,,,PHATE,void_significance,Sentence-BERT Multilingual,,20,1.0,0.050000000000000044,20250923_075717,,
+,,animals,,0.1219,,PHATE,void_geometry,Sentence-BERT Multilingual,,,,,20250923_075717,0.17000000000000004,0.0131

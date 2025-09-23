@@ -1,10 +1,10 @@
 # Semantics Explorer - Multilingual Embedding Visualization
 
-This repository contains the complete implementation of the Semantics Explorer application described in the arXiv paper "Geometric Structures and Patterns of Meaning in Chinese Character Embeddings: A PHATE Manifold Analysis".
+This repository contains the complete implementation of the Semantics Explorer application described in the arXiv paper "Geometric Structures and Patterns of Meaning: A PHATE Manifold Analysis of Chinese Character Embeddings".
 
 ## Overview
 
-A Streamlit-based interactive application for exploring the geometric structure of multi-lingaul word embeddings across multiple embedding models and dimensionality reduction techniques.
+A Streamlit-based interactive application for exploring the geometric structure of multilingual word embeddings across multiple embedding models and multiple dimensionality reduction methods.
 
 ## Quick Start
 
@@ -21,6 +21,7 @@ cd semantics-explorer/src
 pip install -r requirements.txt
 
 # run app
+cd src
 streamlit run Welcome.py
 ```
 
@@ -28,12 +29,12 @@ streamlit run Welcome.py
 
 - **Interactive Visualization**: Real-time 2D/3D embedding exploration
 - **Multiple Models**: Support for both local (Ollama) and cloud-based embedding models
-- **Advanced Dimensionality Reduction**: PHATE, t-SNE, UMAP, and more
-- **Multilingual Support**: Optimized for Chinese-English language pairs
+- **Multiple Dimensionality Reduction Methods**: PHATE, t-SNE, UMAP, and more
+- **Multi-lingual Support**: Optimized for Chinese-English language pairs
 - **Clustering Analysis**: Automated pattern detection in semantic space
-- **Session Caching**: Improved performance for repeated operations
+- **Session Caching**: Improved performance for interactive session
 
-## Repository Structure
+## Folder Structure
 
 ```
 semantics-explorer/
@@ -63,13 +64,19 @@ See `requirements.txt` for complete dependencies. Key packages:
 
 The application includes curated datasets of Chinese characters and text samples used in the paper analysis. See `src/data/README-DATASET.md` for detailed descriptions.
 
-## Paper Citation
 
-**"Geometric Structures and Patterns of Meaning in Chinese Character Embeddings: A PHATE Manifold Analysis"**
+## Citation
 
-https://arxiv.org/abs/xxxx.yyyy
-
+@misc{gong_wg_2025,
+title={Geometric Structures and Patterns of Meaning: A PHATE Manifold Analysis of Chinese Character Embeddings},
+author={Gong, Wen G.},
+year={2025},
+eprint={XXXX.XXXXX},
+archivePrefix={arXiv},
+primaryClass={cs.CL}
+}
 
 ## License
 
 MIT License - see LICENSE file for details.
+

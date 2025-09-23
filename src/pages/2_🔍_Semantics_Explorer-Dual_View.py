@@ -424,7 +424,7 @@ def setup_sidebar_controls():
     settings = {}
     
     with st.sidebar:
-        st.header("🎛️ Settings")
+        st.subheader("⚙️ Settings")
         
         # Model and method selection
         with st.expander("Visualization Settings", expanded=False):
@@ -710,8 +710,8 @@ def main():
     model_name = settings['model_name']
     method_name = settings['method_name']
     
-    chinese_words, english_words, chinese_selected, english_selected = handle_text_input()
     enable_geometric_analysis, analysis_params = setup_geometric_analysis_controls()
+    chinese_words, english_words, chinese_selected, english_selected = handle_text_input()
     setup_zoom_controls()
     btn_vis, btn_pan, btn_save_detail_img = setup_action_buttons()
     

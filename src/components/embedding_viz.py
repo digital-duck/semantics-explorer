@@ -44,6 +44,7 @@ class EmbeddingVisualizer:
     def render_sidebar(self) -> Tuple[str, str, str, bool, Optional[int]]:
         """Render sidebar controls and return settings"""
         with st.sidebar:
+            st.subheader("⚙️ Settings")
             
             with st.expander("Visualization Settings", expanded=False):
 
