@@ -274,23 +274,22 @@ class EmbeddingVisualizer:
                 
                 # Load text if button is clicked
                 if btn_load_txt:
+                    missing_files = []
                     # Load Chinese (source)
                     loaded_chinese = self.load_text_from_file(input_name_selected, "chn")
-                    # if loaded_chinese:
-                    default_texts["chn"] = loaded_chinese
-                    st.session_state.chinese_text_area = loaded_chinese
-                    
+                    st.session_state["chn_text_area"] = loaded_chinese
+                    if not loaded_chinese:
+                        missing_files.append(f"'{input_name_selected}-chn.txt'")
+
                     # Load target languages
-                    files_found = 0
                     for lang_code in target_lang_codes:
                         loaded_text = self.load_text_from_file(input_name_selected, lang_code)
-                        default_texts[lang_code] = loaded_text
                         st.session_state[f'{lang_code}_text_area'] = loaded_text
-                        if loaded_text:
-                            files_found += 1
-                    
-                    if not loaded_chinese and files_found == 0:
-                        st.warning(f"No text files found for '{input_name_selected}'")
+                        if not loaded_text:
+                            missing_files.append(f"'{input_name_selected}-{lang_code}.txt'")
+
+                    if missing_files:
+                        st.warning("No text files found: " + " ; ".join(missing_files))
 
                 # Dynamic text areas based on selected languages
                 num_languages = 1 + len(target_languages)  # Chinese + target languages
@@ -299,14 +298,16 @@ class EmbeddingVisualizer:
                 # Chinese (source) - always first
                 with cols[0]:
                     chinese_text = st.text_area(
-                        "Chinese (chn):", 
-                        value=st.session_state.get('chinese_text_area', default_texts["chn"]),
+                        "Chinese (chn):",
+                        value=st.session_state.get('chn_text_area', default_texts["chn"]),
                         height=200,
-                        key='chinese_text_input'
+                        key='chn_text_area'
                     )
-                    chinese_text = chinese_text.strip()
-                    chinese_selected = st.checkbox("Chinese", value=(len(chinese_text) > 0), key="chn_selected")
-                    chinese_words = self.process_text(chinese_text) if chinese_selected else []
+                    chinese_text = (chinese_text or "").strip()
+                    # Calculate checkbox value from session state content
+                    chn_content = st.session_state.get('chn_text_area', '').strip()
+                    chinese_selected = st.checkbox("Include", value=(len(chn_content) > 0), key='chn_include_checkbox')
+                    chinese_words = self.process_text(chn_content) if chn_content else []
 
                 # Target languages
                 target_words_dict = {}
@@ -318,7 +319,7 @@ class EmbeddingVisualizer:
                     col_to_use = cols[col_idx % len(cols)]
                     
                     with col_to_use:
-                        text_area_key = f'{lang_code}_text_input'
+                        text_area_key = f'{lang_code}_text_area'
                         checkbox_key = f'{lang_code}_selected'
                         
                         lang_text = st.text_area(
@@ -327,10 +328,11 @@ class EmbeddingVisualizer:
                             height=200,
                             key=text_area_key
                         )
-                        lang_text = lang_text.strip()
-                        lang_selected = st.checkbox(lang_name, value=(len(lang_text) > 0), key=checkbox_key)
-                        target_words_dict[lang_code] = self.process_text(lang_text) if lang_selected else []
-                        target_selected_dict[lang_code] = lang_selected
+                        lang_text = (lang_text or "").strip()
+                        # Calculate checkbox value from session state content
+                        lang_content = st.session_state.get(f'{lang_code}_text_area', '').strip()
+                        target_selected_dict[lang_code] = st.checkbox("Include", value=(len(lang_content) > 0), key=f'{lang_code}_include_checkbox')
+                        target_words_dict[lang_code] = self.process_text(lang_content) if lang_content else []
                     
                     col_idx += 1
 

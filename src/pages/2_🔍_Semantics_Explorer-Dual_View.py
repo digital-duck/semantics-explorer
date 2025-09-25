@@ -512,10 +512,10 @@ def handle_text_input():
             col1, col2 = st.columns(2)
             with col1:
                 chinese_text = st.text_area(
-                    "Chinese:", 
+                    "Chinese:",
                     value=st.session_state.get('chinese_text_area', default_chinese),
                     height=200,
-                    key='chinese_text_input'
+                    key='chinese_text_area'
                 )
                 chinese_selected = st.checkbox("Chinese", value=True, key="chinese")
 
@@ -524,7 +524,7 @@ def handle_text_input():
                     "English:",
                     value=st.session_state.get('english_text_area', default_english),
                     height=200,
-                    key='english_text_input'
+                    key='english_text_area'
                 )
                 english_selected = st.checkbox("English", value=True, key="english")
 
