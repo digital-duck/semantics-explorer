@@ -12,12 +12,14 @@ from config import (
 )
 try:
     from transformers import AutoTokenizer, AutoModel
+    import torch
 except ImportError as e:
     import streamlit as st
     st.error(f"Failed to import transformers: {e}")
     # Fallback - only support Ollama models
     AutoTokenizer = None
     AutoModel = None
+    torch = None
 
 @st.cache_resource
 def get_ollama_session():
@@ -91,7 +93,8 @@ class HuggingFaceModel(EmbeddingModel):
 
         self._lazy_load()
         embeddings = []
-        for text in texts:
+        print(f"[DEBUG] Processing {len(texts)} texts with E5-Base-v2")
+        for i, text in enumerate(texts):
             # Skip empty texts that could cause NaN issues
             if not text or not text.strip():
                 st.warning(f"Empty text detected, using zero embedding")
@@ -119,18 +122,33 @@ class HuggingFaceModel(EmbeddingModel):
             # Get the encoder outputs
             outputs = self.model(**inputs)
 
+            print(f"[DEBUG] Text {i}: '{text[:30]}...'")
+            print(f"[DEBUG] Token count: {inputs['input_ids'].size(1)}")
+
             # Proper mean pooling using attention masks to avoid NaN from padding tokens
             attention_mask = inputs['attention_mask']
             token_embeddings = outputs.last_hidden_state
+
+            # Debug raw embeddings
+            print(f"[DEBUG] Raw embeddings shape: {token_embeddings.shape}")
+            print(f"[DEBUG] Raw embeddings range: {token_embeddings.min().item():.4f} to {token_embeddings.max().item():.4f}")
+            print(f"[DEBUG] Raw embeddings has NaN: {torch.isnan(token_embeddings).any().item()}")
 
             # Mask out padding tokens and compute mean
             input_mask_expanded = attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
             sum_embeddings = (token_embeddings * input_mask_expanded).sum(dim=1)
             sum_mask = input_mask_expanded.sum(dim=1)
 
+            print(f"[DEBUG] Sum mask: {sum_mask}")
+            print(f"[DEBUG] Sum embeddings has NaN: {torch.isnan(sum_embeddings).any().item()}")
+
             # Avoid division by zero
             sum_mask = sum_mask.clamp(min=1e-9)
             mean_pooled = sum_embeddings / sum_mask
+
+            print(f"[DEBUG] Mean pooled shape: {mean_pooled.shape}")
+            print(f"[DEBUG] Mean pooled range: {mean_pooled.min().item():.4f} to {mean_pooled.max().item():.4f}")
+            print(f"[DEBUG] Mean pooled has NaN: {torch.isnan(mean_pooled).any().item()}")
 
             # Check for NaN values and extreme values before adding to embeddings
             embedding_array = mean_pooled.detach().numpy()
@@ -148,13 +166,45 @@ class HuggingFaceModel(EmbeddingModel):
 
             embeddings.append(embedding_array)
 
-        return np.vstack(embeddings)
+        # Final debugging before returning
+        final_embeddings = np.vstack(embeddings)
+        print(f"[DEBUG] Final embeddings shape: {final_embeddings.shape}")
+        print(f"[DEBUG] Final embeddings range: {final_embeddings.min():.4f} to {final_embeddings.max():.4f}")
+        print(f"[DEBUG] Final embeddings has NaN: {np.isnan(final_embeddings).any()}")
+        print(f"[DEBUG] Final embeddings has Inf: {np.isinf(final_embeddings).any()}")
+
+        # Force replace any remaining NaN or Inf values
+        if np.isnan(final_embeddings).any() or np.isinf(final_embeddings).any():
+            st.error("Final embeddings still contain NaN/Inf values, replacing with zeros")
+            final_embeddings = np.nan_to_num(final_embeddings, nan=0.0, posinf=10.0, neginf=-10.0)
+
+        return final_embeddings
+
+def get_active_models():
+    """Get only active models for UI display"""
+    active_models = {}
+
+    # Add active Ollama models
+    for name, info in OLLAMA_MODELS.items():
+        if info.get("is_active", True):  # Default to True for backward compatibility
+            active_models[name] = info
+
+    # Add active Hugging Face models
+    for name, info in MODEL_INFO.items():
+        if info.get("is_active", True):  # Default to True for backward compatibility
+            active_models[name] = info
+
+    return active_models
 
 def get_model(model_name: str) -> EmbeddingModel:
     """Factory function for creating embedding models"""
     if model_name in OLLAMA_MODELS:
+        if not OLLAMA_MODELS[model_name].get("is_active", True):
+            raise ModelNotFoundError(f"Model {model_name} is currently inactive")
         return OllamaModel(OLLAMA_MODELS[model_name]["path"])
     elif model_name in MODEL_INFO:
+        if not MODEL_INFO[model_name].get("is_active", True):
+            raise ModelNotFoundError(f"Model {model_name} is currently inactive")
         return HuggingFaceModel(model_name, MODEL_INFO[model_name]["path"])
     else:
         raise ModelNotFoundError(f"Model {model_name} not found")

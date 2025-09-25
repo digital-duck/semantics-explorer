@@ -1,0 +1,5 @@
+davies_bouldin_score,density_std,hull_areas,hull_perimeters,inertia,input_name,language_separation_scores,max_density,mean_density,mean_hull_area,mean_language_coherence,method_name,metric_type,min_density,model_name,num_clusters,silhouette_score,timestamp,total_hull_area
+0.4907,,,,0.0245,sample_1,,,,,,PHATE,basic_clustering,,Snowflake-Arctic-Embed2 (Ollama),5,0.6068,20250925_122123,
+,0.0,,,,sample_1,,118,118.0,,,PHATE,density_analysis,118,Snowflake-Arctic-Embed2 (Ollama),,,20250925_122123,
+,,7.429187523267513e-07;1.1520541921851603e-05;1.2592502940484432e-09;1.4589054183117415e-06;1.2603155633677909e-06,0.27081442602361666;0.3787812012337004;0.1058910649801137;0.24400592974506755;0.32221074068972255,,sample_1,,,,2.996788181230387e-06,,PHATE,boundary_analysis,,Snowflake-Arctic-Embed2 (Ollama),,,20250925_122123,1.4983940906151935e-05
+,,,,,sample_1,,,,,0,PHATE,language_coherence,,Snowflake-Arctic-Embed2 (Ollama),,,20250925_122123,

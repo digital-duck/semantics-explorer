@@ -367,21 +367,21 @@ class PlotManager:
             showlegend=False,
             scene=dict(
                 xaxis=dict(
-                    showgrid=True,
+                    showgrid=True, 
                     gridwidth=self.publication_settings['grid_width'],
-                    gridcolor=self.publication_settings['grid_color']
+                    gridcolor=self.publication_settings['grid_color'],
                     # griddash not supported for 3D scene axes
                 ),
                 yaxis=dict(
-                    showgrid=True,
+                    showgrid=True, 
                     gridwidth=self.publication_settings['grid_width'],
-                    gridcolor=self.publication_settings['grid_color']
+                    gridcolor=self.publication_settings['grid_color'],
                     # griddash not supported for 3D scene axes
                 ),
                 zaxis=dict(
-                    showgrid=True,
+                    showgrid=True, 
                     gridwidth=self.publication_settings['grid_width'],
-                    gridcolor=self.publication_settings['grid_color']
+                    gridcolor=self.publication_settings['grid_color'],
                     # griddash not supported for 3D scene axes
                 )
             ),
@@ -442,21 +442,21 @@ class PlotManager:
             showlegend=True,
             scene=dict(
                 xaxis=dict(
-                    showgrid=True,
+                    showgrid=True, 
                     gridwidth=self.publication_settings['grid_width'],
-                    gridcolor=self.publication_settings['grid_color']
+                    gridcolor=self.publication_settings['grid_color'],
                     # griddash not supported for 3D scene axes
                 ),
                 yaxis=dict(
-                    showgrid=True,
+                    showgrid=True, 
                     gridwidth=self.publication_settings['grid_width'],
-                    gridcolor=self.publication_settings['grid_color']
+                    gridcolor=self.publication_settings['grid_color'],
                     # griddash not supported for 3D scene axes
                 ),
                 zaxis=dict(
-                    showgrid=True,
+                    showgrid=True, 
                     gridwidth=self.publication_settings['grid_width'],
-                    gridcolor=self.publication_settings['grid_color']
+                    gridcolor=self.publication_settings['grid_color'],
                     # griddash not supported for 3D scene axes
                 )
             ),

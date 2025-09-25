@@ -1,8 +1,8 @@
 # config.py
 import streamlit as st 
 import os
-
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -12,6 +12,10 @@ load_dotenv()
 ST_APP_NAME = "Semantics Explorer"
 
 ST_ICON = "🧭"
+
+SRC_DIR = Path(__file__).parent
+# print(f"[DBG] src dir: {SRC_DIR}")
+
 
 # Default Settings
 DEFAULT_N_CLUSTERS = 5
@@ -44,34 +48,23 @@ PLOT_WIDTH, PLOT_HEIGHT = PLOT_CONFIG["width"], PLOT_CONFIG["height"]
 
 # Sample Data
 SAMPLE_DATA = {
-    "chinese": """你好
-天气
-晴朗
-""",
-    "english": """Hello
-Weather
-Sunny
-"""
+    "chinese": "",
+    "english": "",
+
+#     "chinese": """你好
+# 天气
+# 晴朗
+# """,
+#     "english": """Hello
+# Weather
+# Sunny
+# """
+
 }
 
-# File Paths
-FILE_PATHS = {
-    "images_dir": Path("images"),
-    "chinese_file": Path("data/data-1-chn.txt"),
-    "english_file": Path("data/data-1-enu.txt")
-}
 
-file_path_chn = FILE_PATHS["chinese_file"]
-file_path_enu = FILE_PATHS["english_file"]
-if file_path_chn.exists():
-    sample_chn_input_data = open(file_path_chn).read()
-else:
-    sample_chn_input_data = SAMPLE_DATA["chinese"]
-
-if file_path_enu.exists():
-    sample_enu_input_data = open(file_path_enu).read()
-else:
-    sample_enu_input_data = SAMPLE_DATA["english"]
+sample_chn_input_data = SAMPLE_DATA["chinese"]
+sample_enu_input_data = SAMPLE_DATA["english"]
 
 
 # Cache Settings

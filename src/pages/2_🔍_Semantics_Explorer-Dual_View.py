@@ -2,7 +2,7 @@ import streamlit as st
 import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from components.embedding_viz import EmbeddingVisualizer
+from components.embedding_viz import EmbeddingVisualizer, get_active_methods
 from components.dimension_reduction import DimensionReducer
 from components.geometric_analysis import GeometricAnalyzer
 from config import (
@@ -15,7 +15,8 @@ from config import (
     DEFAULT_MODEL,
     DEFAULT_METHOD,
     sample_chn_input_data,
-    sample_enu_input_data
+    sample_enu_input_data,
+    SRC_DIR
 )
 from pathlib import Path
 from utils.download_helpers import handle_download_button
@@ -397,8 +398,7 @@ def display_dual_view_geometric_analysis(model_name=None, method_name=None):
                     clustering_filename = f"{clean_method}-{clean_model}-{clean_dataset}-dpi-{export_dpi}-text-{textfont_size}-point-{point_size}-clustering.{export_format}"
                     
                     # Auto-save the clustering chart
-                    from pathlib import Path
-                    images_dir = Path("data/images")
+                    images_dir = SRC_DIR / "data/images"
                     images_dir.mkdir(parents=True, exist_ok=True)
                     
                     # Save with high quality
@@ -434,10 +434,12 @@ def setup_sidebar_controls():
                 index=list(MODEL_INFO.keys()).index(DEFAULT_MODEL)
             )
             
+            active_methods = get_active_methods()
+            active_method_names = sorted(list(active_methods.keys()))
             settings['method_name'] = st.selectbox(
                 "Reduction Method:",
-                options=list(METHOD_INFO.keys()),
-                index=list(METHOD_INFO.keys()).index(DEFAULT_METHOD)
+                options=active_method_names,
+                index=active_method_names.index(DEFAULT_METHOD) if DEFAULT_METHOD in active_method_names else 0
             )
         
         # Publication Settings (using shared component)
@@ -455,7 +457,7 @@ def handle_text_input():
     with st.sidebar:
         # Text input areas - same as Semantics Explorer
         with st.expander("Enter Text Data (Word/Phrase):", expanded=False):
-            input_dir = Path("data/input")
+            input_dir = SRC_DIR / "data/input"
             
             # File loading section
             col_input_select, col_load_txt = st.columns([3, 1])
@@ -489,25 +491,31 @@ def handle_text_input():
             if btn_load_txt:
                 chn_file = input_dir / f"{input_name_selected}-chn.txt"
                 enu_file = input_dir / f"{input_name_selected}-enu.txt"
-                
+
+                err_msg = []
                 if chn_file.exists():
                     try:
                         loaded_chinese = chn_file.read_text(encoding='utf-8').strip()
-                        default_chinese = loaded_chinese
-                        st.session_state.chinese_text_area = loaded_chinese
+                        st.session_state['chinese_text_area'] = loaded_chinese
                     except Exception as e:
                         st.error(f"Error reading Chinese file: {e}")
-                
+                else:
+                    err_msg.append(f"'{input_name_selected}-chn.txt'")
+
                 if enu_file.exists():
                     try:
                         loaded_english = enu_file.read_text(encoding='utf-8').strip()
-                        default_english = loaded_english
-                        st.session_state.english_text_area = loaded_english
+                        st.session_state['english_text_area'] = loaded_english
                     except Exception as e:
                         st.error(f"Error reading English file: {e}")
-                
-                if not chn_file.exists() and not enu_file.exists():
-                    st.warning(f"No text files found for '{input_name_selected}'")
+                else:
+                    err_msg.append(f"'{input_name_selected}-enu.txt'")
+
+                if err_msg:
+                    st.warning("No text files found: " + " ; ".join(err_msg))
+                else:
+                    # Force rerun to update text areas
+                    st.rerun()
 
             col1, col2 = st.columns(2)
             with col1:
@@ -517,7 +525,8 @@ def handle_text_input():
                     height=200,
                     key='chinese_text_area'
                 )
-                chinese_selected = st.checkbox("Chinese", value=True, key="chinese")
+                chinese_text = (chinese_text or "").strip()
+                chinese_selected = len(chinese_text) > 0
 
             with col2:
                 english_text = st.text_area(
@@ -526,7 +535,8 @@ def handle_text_input():
                     height=200,
                     key='english_text_area'
                 )
-                english_selected = st.checkbox("English", value=True, key="english")
+                english_text = (english_text or "").strip()
+                english_selected = len(english_text) > 0
 
             # Process text into word lists
             visualizer = EmbeddingVisualizer()
@@ -710,8 +720,8 @@ def main():
     model_name = settings['model_name']
     method_name = settings['method_name']
     
-    enable_geometric_analysis, analysis_params = setup_geometric_analysis_controls()
     chinese_words, english_words, chinese_selected, english_selected = handle_text_input()
+    enable_geometric_analysis, analysis_params = setup_geometric_analysis_controls()
     setup_zoom_controls()
     btn_vis, btn_pan, btn_save_detail_img = setup_action_buttons()
     

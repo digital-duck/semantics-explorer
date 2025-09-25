@@ -8,15 +8,24 @@ from pathlib import Path
 import unicodedata
 
 from config import (
-    MODEL_INFO, METHOD_INFO, DEFAULT_MODEL, DEFAULT_METHOD, 
-    COLOR_MAP, 
-    sample_chn_input_data, sample_enu_input_data
+    MODEL_INFO, METHOD_INFO, DEFAULT_MODEL, DEFAULT_METHOD,
+    COLOR_MAP,
+    sample_chn_input_data, sample_enu_input_data,
+    SRC_DIR
 )
-from models.model_manager import get_model
+from models.model_manager import get_model, get_active_models
 from utils.error_handling import handle_errors
 from components.shared.publication_settings import PublicationSettingsWidget
 
 from components.plotting import PlotManager
+
+def get_active_methods():
+    """Get only active methods for UI display"""
+    active_methods = {}
+    for name, info in METHOD_INFO.items():
+        if info.get("is_active", True):  # Default to True for backward compatibility
+            active_methods[name] = info
+    return active_methods
 
 def rearrange_by_ollama(models):
     l1 = []
@@ -30,10 +39,14 @@ def rearrange_by_ollama(models):
 
 class EmbeddingVisualizer:
     def __init__(self):
-        self.model_names = rearrange_by_ollama(sorted(list(MODEL_INFO.keys())))
-        self.method_names = sorted(list(METHOD_INFO.keys()))
-        self.input_dir = Path("data/input")
-        self.images_dir = Path("data/images")
+        # Use only active models and methods
+        active_models = get_active_models()
+        self.model_names = rearrange_by_ollama(sorted(list(active_models.keys())))
+
+        self.active_methods = get_active_methods()
+        self.method_names = sorted(list(self.active_methods.keys()))
+        self.input_dir = SRC_DIR / "data/input"
+        self.images_dir = SRC_DIR / "data/images"
         
         # Initialize session state for plot rotation
         if 'plot_rotation' not in st.session_state:
@@ -56,6 +69,10 @@ class EmbeddingVisualizer:
                     help="Select a multilingual embedding model",
                     key="cfg_embed_model_name"
                 )
+
+                # Warning for E5-Base-v2 with Chinese text
+                if model_name == "E5-Base-v2":
+                    st.warning("⚠️ E5-Base-v2 may produce NaN errors with Chinese text. Consider using Sentence-BERT Multilingual or BGE-M3 for Chinese-English datasets.")
                 if model_name == DEFAULT_MODEL:
                     info_msg = f"**{model_name}** (default): {MODEL_INFO[model_name]['help']}"
                 else:
@@ -71,9 +88,9 @@ class EmbeddingVisualizer:
                     key="cfg_dim_reduc_method_name"
                 )
                 if method_name == DEFAULT_METHOD:
-                    info_msg = f"**{method_name}** (default): {METHOD_INFO[method_name]['help']}"
+                    info_msg = f"**{method_name}** (default): {self.active_methods[method_name]['help']}"
                 else:
-                    info_msg = f"**{method_name}**: {METHOD_INFO[method_name]['help']}"
+                    info_msg = f"**{method_name}**: {self.active_methods[method_name]['help']}"
                 st.info(info_msg)
 
                 # Dimensions
@@ -145,8 +162,6 @@ class EmbeddingVisualizer:
                 return file_path.read_text(encoding='utf-8').strip()
             except Exception as e:
                 st.error(f"Error reading file {file_path}: {e}")
-        else:
-            st.warning(f"File not found: {file_path}")
         return ""
     
     def save_text_to_file(self, input_name: str, chinese_text: str, english_text: str, 
@@ -231,11 +246,11 @@ class EmbeddingVisualizer:
                 # Language selection
                 st.markdown("Source Language: Chinese (chn)")
                 # Multi-target language selection
-                target_languages = st.multiselect(
-                    "**Target Language(s)**",
-                    options=["English", "French", "Spanish", "German"],
-                    default=st.session_state.get('target_languages', ["English"]),
-                    help="Select target languages for comparison with Chinese",
+                target_language = st.selectbox(
+                    "**Target Language**",
+                    options=["English"], #, "French", "Spanish", "German"],
+                    index=0,
+                    help="Select target language for comparison with Chinese",
                     key='target_languages'
                 )
                 
@@ -246,8 +261,7 @@ class EmbeddingVisualizer:
                     "Spanish": "spa", 
                     "German": "deu"
                 }
-                target_lang_codes = [lang_code_map[lang] for lang in target_languages]
-
+                target_lang_code = lang_code_map[target_language]
 
                 col_input_select, col_load_txt = st.columns([3, 1])
                 with col_input_select:
@@ -256,7 +270,7 @@ class EmbeddingVisualizer:
                         "Select Input",
                         options=[""] + available_inputs,
                         index=0,
-                        key="cfg_input_text_selected"
+                        key="input_name_selected"
                     )
                 with col_load_txt:
                     btn_load_txt = st.button("Load Text", type="primary", 
@@ -282,18 +296,18 @@ class EmbeddingVisualizer:
                         missing_files.append(f"'{input_name_selected}-chn.txt'")
 
                     # Load target languages
-                    for lang_code in target_lang_codes:
-                        loaded_text = self.load_text_from_file(input_name_selected, lang_code)
-                        st.session_state[f'{lang_code}_text_area'] = loaded_text
-                        if not loaded_text:
-                            missing_files.append(f"'{input_name_selected}-{lang_code}.txt'")
+                    lang_code = target_lang_code
+                    loaded_text = self.load_text_from_file(input_name_selected, lang_code)
+                    st.session_state[f"{lang_code}_text_area"] = loaded_text
+                    if not loaded_text:
+                        missing_files.append(f"'{input_name_selected}-{lang_code}.txt'")
 
                     if missing_files:
                         st.warning("No text files found: " + " ; ".join(missing_files))
 
                 # Dynamic text areas based on selected languages
-                num_languages = 1 + len(target_languages)  # Chinese + target languages
-                cols = st.columns(min(num_languages, 3))  # Max 3 columns for readability
+                num_languages = 2  # Chinese + target languages
+                cols = st.columns(num_languages)  # Max 3 columns for readability
                 
                 # Chinese (source) - always first
                 with cols[0]:
@@ -306,42 +320,40 @@ class EmbeddingVisualizer:
                     chinese_text = (chinese_text or "").strip()
                     # Calculate checkbox value from session state content
                     chn_content = st.session_state.get('chn_text_area', '').strip()
-                    chinese_selected = st.checkbox("Include", value=(len(chn_content) > 0), key='chn_include_checkbox')
+                    chinese_selected = st.checkbox("Include", value=(len(chn_content) > 0), key='chn_include_checkbox') 
                     chinese_words = self.process_text(chn_content) if chn_content else []
 
                 # Target languages
                 target_words_dict = {}
                 target_selected_dict = {}
                 col_idx = 1
-                
-                for i, (lang_name, lang_code) in enumerate(zip(target_languages, target_lang_codes)):
-                    # Use appropriate column (wrap around if more than 3 languages)
-                    col_to_use = cols[col_idx % len(cols)]
+
+
+                lang_code = target_lang_code
+                lang_name = target_language                
+                # print(f"[DBG] ENU_text: {st.session_state[f'{lang_code}_text_import']}")
+                with cols[1]:
+
+                    lang_text = st.text_area(
+                        f"{lang_name} ({lang_code}):",
+                        value=st.session_state.get(f'{lang_code}_text_area', default_texts.get(lang_code, "")),
+                        height=200,
+                        key=f'{lang_code}_text_area'
+                    )
+                    lang_text = (lang_text or "").strip()
+                    # print(f"[DBG] lang_text: {lang_text}")
+                    # Calculate checkbox value from session state content
+                    lang_content = st.session_state.get(f'{lang_code}_text_area', '').strip()
+                    target_selected_dict[lang_code] = st.checkbox("Include", value=(len(lang_content) > 0), key=f'{lang_code}_include_checkbox') 
+                    target_words_dict[lang_code] = self.process_text(lang_content) if lang_content else []
                     
-                    with col_to_use:
-                        text_area_key = f'{lang_code}_text_area'
-                        checkbox_key = f'{lang_code}_selected'
-                        
-                        lang_text = st.text_area(
-                            f"{lang_name} ({lang_code}):",
-                            value=st.session_state.get(f'{lang_code}_text_area', default_texts.get(lang_code, "")),
-                            height=200,
-                            key=text_area_key
-                        )
-                        lang_text = (lang_text or "").strip()
-                        # Calculate checkbox value from session state content
-                        lang_content = st.session_state.get(f'{lang_code}_text_area', '').strip()
-                        target_selected_dict[lang_code] = st.checkbox("Include", value=(len(lang_content) > 0), key=f'{lang_code}_include_checkbox')
-                        target_words_dict[lang_code] = self.process_text(lang_content) if lang_content else []
-                    
-                    col_idx += 1
 
                 # User can enter a name for the input and save the texts 
                 col_input_enter, col_save_txt = st.columns([3, 1])
                 with col_input_enter:
                     input_name_raw = st.text_input(
                         "Name Input",
-                        value=input_name_selected if input_name_selected else "untitled",
+                        value=st.session_state.get("input_name_selected", "untitled"),
                         key="cfg_input_text_entered",
                         help="Name will be automatically sanitized for filename compatibility"
                     )
@@ -396,62 +408,6 @@ class EmbeddingVisualizer:
         model = get_model(model_name)
         return model.get_embeddings(words, lang)
 
-    def visualize(self):
-        """Main visualization function"""
-        st.title("Multilingual Word Embedding Explorer")
-        
-        # Get settings from sidebar
-        model_name, method_name, dimensions, do_clustering, n_clusters = self.render_sidebar()
-        
-        # Get input words
-        chinese_words, english_words, colors = self.render_input_areas()
-        
-        if st.button("Visualize"):
-            if not (chinese_words or english_words):
-                st.warning("Please enter at least one word or phrase.")
-                return
-
-            # Process embeddings
-            embeddings = []
-            if chinese_words:
-                chinese_embeddings = self.get_embeddings(chinese_words, model_name, "zh")
-                if chinese_embeddings is not None:
-                    embeddings.append(chinese_embeddings)
-            
-            if english_words:
-                english_embeddings = self.get_embeddings(english_words, model_name, "en")
-                if english_embeddings is not None:
-                    embeddings.append(english_embeddings)
-
-            if not embeddings:
-                st.error("Failed to generate embeddings.")
-                return
-
-            # Combine embeddings and create visualization
-            combined_embeddings = np.vstack(embeddings)
-            labels = chinese_words + english_words
-            
-            # Create visualization based on settings
-            self.create_plot(
-                combined_embeddings,
-                labels,
-                colors,
-                model_name,
-                method_name,
-                dimensions,
-                do_clustering,
-                n_clusters
-            )
-
-    # def sanitize_filename(self, text: str) -> str:
-    #     """Sanitize text for use in filename"""
-    #     # Convert to lowercase and replace spaces/special chars with underscores
-    #     sanitized = re.sub(r'[^a-z0-9]+', '_', text.lower().strip())
-    #     # Remove duplicate underscores
-    #     sanitized = re.sub(r'_+', '_', sanitized)
-    #     # Remove leading/trailing underscores
-    #     sanitized = sanitized.strip('_')
-    #     return sanitized if sanitized else "untitled"
     
     def sanitize_filename(self, text: str) -> str:
         """Sanitize text for use in filename"""
