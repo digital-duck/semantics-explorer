@@ -292,7 +292,7 @@ def display_geometric_analysis_results(analyzer, results, embeddings, labels):
                             results.get('void', {}),
                             model_name, method_name, dataset_name
                         )
-                        st.plotly_chart(clustering_fig, use_container_width=True)
+                        st.plotly_chart(clustering_fig, width='stretch')
                         
                         # Add download button for clustering chart
                         handle_download_button(clustering_fig, model_name, method_name, dataset_name, "clustering", "main")
@@ -388,7 +388,7 @@ def main():
         file_png = save_plot_image(visualizer, current_input, model_name, method_name, chinese_selected, english_selected)
         if file_png:
             st.sidebar.success(f"Image saved as: {file_png}")
-            st.image(f"data/images/{file_png}", caption=f"{file_png}", use_container_width=True)
+            st.image(f"data/images/{file_png}", caption=f"{file_png}", width='stretch')
         else:
             st.error("Failed to save image.")
 

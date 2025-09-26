@@ -589,7 +589,7 @@ class EmbeddingVisualizer:
                 
                 # Display image
                 try:
-                    st.image(str(image_file), caption=image_file.stem, use_container_width=True)
+                    st.image(str(image_file), caption=image_file.stem, width='stretch')
                     
                     # Add download button
                     with open(image_file, "rb") as file:

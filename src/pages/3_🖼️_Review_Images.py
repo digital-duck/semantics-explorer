@@ -246,7 +246,7 @@ def main():
                 st.image(
                     str(image_path),
                     caption=filename if not show_filename else None,
-                    use_container_width=True
+                    width='stretch'
                 )
 
                 # Action buttons
