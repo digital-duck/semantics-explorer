@@ -104,17 +104,22 @@ def generate_visualization(visualizer, reducer, chinese_words, english_words, co
     
     # Auto-save the visualization (saves user from having to click download)
     try:
-        # Get current input name for filename
+        # Get current input name for filename (consistent with title logic)
         current_input = st.session_state.get('cfg_input_text_entered', 'untitled')
         if not current_input or current_input == 'untitled':
-            current_input = st.session_state.get('cfg_input_text_selected', 'sample_1')
-        
-        # Determine language selections from colors
-        chinese_selected = st.session_state.get('chn_selected', False)
-        english_selected = st.session_state.get('enu_selected', False)
+            current_input = st.session_state.get('input_name_selected', 'sample_1')
+            # Fallback to dual-view page key
+            if not current_input:
+                current_input = st.session_state.get('cfg_input_text_selected', 'sample_1')
+
+        # Determine language selections based on actual text content
+        chinese_text = st.session_state.get('chn_text_area', '')
+        english_text = st.session_state.get('enu_text_area', '')
+        chinese_selected = bool(chinese_text.strip())
+        english_selected = bool(english_text.strip())
         
         # Auto-save the plot
-        saved_filename = visualizer.save_plot_image(current_input, model_name, method_name, chinese_selected, english_selected)
+        saved_filename = visualizer.save_plot_image(current_input, model_name, method_name, chinese_selected, english_selected, dimensions)
         if saved_filename:
             st.success(f"📸 **Visualization auto-saved as**: {saved_filename}")
         
@@ -391,10 +396,13 @@ def main():
     if btn_visualize:
         success = generate_visualization(visualizer, reducer, chinese_words, english_words, colors, model_name, method_name, dimensions, do_clustering, n_clusters)
         
-        # Perform geometric analysis if enabled and visualization was successful
+        # Perform geometric analysis if enabled and visualization was successful (only for 2D)
         if success and enable_geometric_analysis and analysis_params and 'visualization_data' in st.session_state:
-            with st.spinner("🔬 Performing geometric analysis..."):
-                perform_geometric_analysis(geometric_analyzer, analysis_params)
+            if dimensions == "2D":
+                with st.spinner("🔬 Performing geometric analysis..."):
+                    perform_geometric_analysis(geometric_analyzer, analysis_params)
+            else:
+                st.info("ℹ️ Geometric analysis is only available for 2D visualizations.")
 
 
 

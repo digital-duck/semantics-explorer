@@ -1,6 +1,6 @@
 clustering_coefficient,digit_indices,digit_sequence_linearity,found_digits,found_letters,graph_density,hub_nodes,input_name,largest_component_size,max_degree,mean_degree,mean_step_distance,method_name,metric_type,model_name,num_components,num_digits,num_edges,num_hubs,num_letters,overall_linearity,sequential_consistency,step_distance_std,timestamp,transitivity
-1.0,,,,,,,sample_1,119,,,,PHATE,connectivity_graph,Jina-Embeddings-v2-ZH,1,,7021,,,,,,20250925_121859,
-,2;15;24;39;51;78;92;98;101;107,0.879,,,,,sample_1,,,,,PHATE,linearity_analysis,Jina-Embeddings-v2-ZH,,,,,,0.8703,,,20250925_121859,
-,,,,,1.0,,sample_1,,118,118.0,,PHATE,topology_analysis,Jina-Embeddings-v2-ZH,,,,0,,,,,20250925_121859,1.0
-,,,0;1;2;3;4;5;6;7;8;9,,,,sample_1,,,,0.0781,PHATE,digit_ordering,Jina-Embeddings-v2-ZH,,10,,,,,0.1732,0.0646,20250925_121859,
-,,,,a;b;c;d;e;f;g;h;i;j;k;l;m;n;o;p;q;r;s;t;u;v;w;x;y;z,,,sample_1,,,,0.1031,PHATE,alphabetical_ordering,Jina-Embeddings-v2-ZH,,,,,26,,0.3922,,20250925_121859,
+1.0,,,,,,,sample_1,119,,,,PHATE,connectivity_graph,Jina-Embeddings-v2-ZH,1,,7021,,,,,,20250925_192229,
+,2;15;24;39;51;78;92;98;101;107,0.8789,,,,,sample_1,,,,,PHATE,linearity_analysis,Jina-Embeddings-v2-ZH,,,,,,0.8702,,,20250925_192229,
+,,,,,1.0,,sample_1,,118,118.0,,PHATE,topology_analysis,Jina-Embeddings-v2-ZH,,,,0,,,,,20250925_192229,1.0
+,,,0;1;2;3;4;5;6;7;8;9,,,,sample_1,,,,0.0781,PHATE,digit_ordering,Jina-Embeddings-v2-ZH,,10,,,,,0.1733,0.0646,20250925_192229,
+,,,,a;b;c;d;e;f;g;h;i;j;k;l;m;n;o;p;q;r;s;t;u;v;w;x;y;z,,,sample_1,,,,0.1031,PHATE,alphabetical_ordering,Jina-Embeddings-v2-ZH,,,,,26,,0.3918,,20250925_192229,

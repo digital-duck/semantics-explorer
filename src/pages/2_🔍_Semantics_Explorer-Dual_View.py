@@ -427,7 +427,7 @@ def setup_sidebar_controls():
         st.subheader("⚙️ Settings")
         
         # Model and method selection
-        with st.expander("Visualization Settings", expanded=False):
+        with st.expander("🎨 Visualization Settings", expanded=False):
             settings['model_name'] = st.selectbox(
                 "Embedding Model:",
                 options=list(MODEL_INFO.keys()),
@@ -456,7 +456,7 @@ def handle_text_input():
     """Handle text input UI and return processed text data"""
     with st.sidebar:
         # Text input areas - same as Semantics Explorer
-        with st.expander("Enter Text Data (Word/Phrase):", expanded=False):
+        with st.expander("✏️ Enter Text Data (Word/Phrase):", expanded=False):
             input_dir = SRC_DIR / "data/input"
             
             # File loading section

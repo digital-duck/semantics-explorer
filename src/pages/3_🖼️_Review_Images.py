@@ -57,9 +57,9 @@ def main():
 
     # Sidebar for display options
     with st.sidebar:
-        st.subheader("📐 Display Options")
+        st.subheader("📐 Display Settings")
 
-        layout_option = st.radio(
+        layout_option = st.selectbox(
             "Grid Layout:",
             options=["1 per row", "2 per row", "3 per row"],
             index=0,
